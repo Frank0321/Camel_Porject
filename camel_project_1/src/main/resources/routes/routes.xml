@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+         http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+         http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+  <!-- define the say bean -->
+  <bean id="myBean" class="com.example.camel_project_1.bean.SampleBean">
+    <property name="say" value="${greeting}"/>
+  </bean>
+
+  <!-- embed Camel with routes -->
+  <!-- <camelContext id="SampleCamel" xmlns="http://camel.apache.org/schema/spring"> -->
+  <routeContext id="routes" xmlns="http://camel.apache.org/schema/spring">
+    <route id="hello">
+      <!-- 多久執行一次 -->
+      <from uri="timer:camelHello?period={{timer.period}}"/> <!-- use camel {{ }} property placeholder syntax -->
+      <transform>
+        <!-- call the method on the bean -->
+        <method ref="myBean" method="saySomething"/>
+      </transform>
+      <filter>
+        <simple>${body} contains 'foo'</simple>
+        <to uri="log:foo"/>
+      </filter>
+      <to uri="stream:out"/>
+    </route>
+ </routeContext>
+
+</beans>
